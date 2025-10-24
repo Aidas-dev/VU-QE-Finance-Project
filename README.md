@@ -6,7 +6,7 @@ Useful financial python and/or R scripts and tools.
 
 Create a portfolio of stocks or any financial instruments that can be found on **The Bloomberg Terminal**, it can be made from 1 or a lot of different stocks. It has to maximize **The Sharpe Ratio**:
 
-[The Sharpe Ratio formula](https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fwww.businessinsider.com%2Fpersonal-finance%2Finvesting%2Fsharpe-ratio&ved=0CBUQjRxqFwoTCLjBo7TkvJADFQAAAAAdAAAAABAI&opi=89978449)
+![The Sharpe Ratio formula](https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fwww.businessinsider.com%2Fpersonal-finance%2Finvesting%2Fsharpe-ratio&ved=0CBUQjRxqFwoTCLjBo7TkvJADFQAAAAAdAAAAABAI&opi=89978449)
 
 ### Conditions:
 
