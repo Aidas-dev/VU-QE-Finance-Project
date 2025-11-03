@@ -97,52 +97,57 @@ def calculate_sharpe_ratio(returns, risk_free_rate, periods_per_year=12):
     Returns:
     DataFrame: Sharpe ratios for each instrument
     """
-    # Calculate excess returns
+    # Calculate excess returns.
     excess_returns = returns.sub(risk_free_rate, axis=0)
     
-    # Annualize mean returns and standard deviation
+    # Annualize mean returns and standard deviation.
     annualized_mean = excess_returns.mean() * periods_per_year
     annualized_std = excess_returns.std() * np.sqrt(periods_per_year)
     
-    # Calculate Sharpe ratio
+    # Calculate Sharpe ratio.
     sharpe_ratios = annualized_mean / annualized_std
     
     return sharpe_ratios
 
-#Calcurating optimal portfolio weights, without shorting positions.
-def optimize_portfolio(returns, risk_free_rate):
+def optimize_portfolio(returns, risk_free_rate, allow_shorting=False):
     """
-    Optimize portfolio weights to maximize Sharpe ratio without shorting
+    Optimize portfolio weights to maximize Sharpe ratio with optional shorting
     
     Parameters:
     returns (DataFrame): DataFrame of asset returns
     risk_free_rate (Series): Series of risk-free rates
+    allow_shorting (bool): Whether to allow negative weights (short positions)
     
     Returns:
     Series: Optimal weights for each asset
     """
-    # Number of assets
+    # Number of assets.
     n = len(returns.columns)
     
-    # Expected returns and covariance matrix
+    # Expected returns and covariance matrix.
     mu = np.array(returns.mean())
     S = np.array(returns.cov())
     
-    # Convert to cvxopt matrices
+    # Convert to cvxopt matrices.
     P = cvx.matrix(S)
     q = cvx.matrix(np.zeros(n))
     
-    # Constraints: Gx <= h, Ax = b
-    G = cvx.matrix(-np.eye(n))  # No shorting (weights >= 0)
-    h = cvx.matrix(np.zeros(n))
-    A = cvx.matrix(1.0, (1, n))  # Sum of weights = 1
+    # Constraints: Ax = b (sum to 1) .
+    A = cvx.matrix(1.0, (1, n))
     b = cvx.matrix(1.0)
     
-    # Solve quadratic programming problem
-    solution = cvx.solvers.qp(P, q, G, h, A, b)
+    # Additional constraints when not allowing shorting.
+    if not allow_shorting:
+        G = cvx.matrix(-np.eye(n))  # No shorting (weights >= 0)
+        h = cvx.matrix(np.zeros(n))
+        solution = cvx.solvers.qp(P, q, G, h, A, b)
+    else:
+        solution = cvx.solvers.qp(P, q, A=A, b=b)
+    
     weights = np.array(solution['x']).flatten()
     
     return pd.Series(weights, index=returns.columns)
+
 
 """
 # Main code:
@@ -157,7 +162,8 @@ monthly_returns = calculate_monthly_returns(clean_df)
 # Calculating Sharpe ratios
 sharpe_ratios = calculate_sharpe_ratio(monthly_returns, risk_free_rate)
 # Optimizing portfolio weights
-optimal_weights = optimize_portfolio(monthly_returns, risk_free_rate)
+optimal_weights_no_shorting = optimize_portfolio(monthly_returns, risk_free_rate)
+optimal_weights_with_shorting = optimize_portfolio(monthly_returns, risk_free_rate, allow_shorting=True)
 
 """
 # Exporting the data as xlsx files:
@@ -175,6 +181,9 @@ monthly_returns.to_excel('Monthly-returns-Sharpe-ratio-picked-instruments-data.x
 # Exporting Sharpe ratios to a xlsx file:
 sharpe_ratios.to_excel('Sharpe-ratio-results.xlsx')
 
-# Exporting optimal weights to a xlsx file:
-optimal_weights.to_excel('Optimal-portfolio-weights.xlsx')
+# Exporting optimal weights with no-shorting to a xlsx file:
+optimal_weights_no_shorting.to_excel('Optimal-portfolio-weights(no_shorting).xlsx')
+
+# Exporting optimal weights with shorting to a xlsx file:
+optimal_weights_with_shorting.to_excel('Optimal-portfolio-weights(with_shorting).xlsx')
 
