@@ -22,8 +22,9 @@ import openpyxl
 
 df = pd.read_csv('Sharpe-ratio-picked-instruments-data.csv')
 
-#------------------------------------------------------------------------------------------
-# Functions:
+"""
+# Functions: 
+"""
 
 # Cleaning the data:
 def clean_data(df):
@@ -83,7 +84,69 @@ def calculate_monthly_returns(price_df):
 
     return returns_df
 
-#----------------------------------------------------------------------------------------------------------
+# Calculating Sharpe ratios
+def calculate_sharpe_ratio(returns, risk_free_rate, periods_per_year=12):
+    """
+    Calculate annualized Sharpe ratio for each instrument
+    
+    Parameters:
+    returns (DataFrame): DataFrame of monthly returns
+    risk_free_rate (Series): Series of risk-free rates
+    periods_per_year (int): Number of periods per year (default 12 for monthly)
+    
+    Returns:
+    DataFrame: Sharpe ratios for each instrument
+    """
+    # Calculate excess returns
+    excess_returns = returns.sub(risk_free_rate, axis=0)
+    
+    # Annualize mean returns and standard deviation
+    annualized_mean = excess_returns.mean() * periods_per_year
+    annualized_std = excess_returns.std() * np.sqrt(periods_per_year)
+    
+    # Calculate Sharpe ratio
+    sharpe_ratios = annualized_mean / annualized_std
+    
+    return sharpe_ratios
+
+#Calcurating optimal portfolio weights, without shorting positions.
+def optimize_portfolio(returns, risk_free_rate):
+    """
+    Optimize portfolio weights to maximize Sharpe ratio without shorting
+    
+    Parameters:
+    returns (DataFrame): DataFrame of asset returns
+    risk_free_rate (Series): Series of risk-free rates
+    
+    Returns:
+    Series: Optimal weights for each asset
+    """
+    # Number of assets
+    n = len(returns.columns)
+    
+    # Expected returns and covariance matrix
+    mu = np.array(returns.mean())
+    S = np.array(returns.cov())
+    
+    # Convert to cvxopt matrices
+    P = cvx.matrix(S)
+    q = cvx.matrix(np.zeros(n))
+    
+    # Constraints: Gx <= h, Ax = b
+    G = cvx.matrix(-np.eye(n))  # No shorting (weights >= 0)
+    h = cvx.matrix(np.zeros(n))
+    A = cvx.matrix(1.0, (1, n))  # Sum of weights = 1
+    b = cvx.matrix(1.0)
+    
+    # Solve quadratic programming problem
+    solution = cvx.solvers.qp(P, q, G, h, A, b)
+    weights = np.array(solution['x']).flatten()
+    
+    return pd.Series(weights, index=returns.columns)
+
+"""
+# Main code:
+"""
 
 # Cleaning the data.
 clean_df = clean_data(df)
@@ -91,8 +154,14 @@ clean_df = clean_data(df)
 risk_free_rate = extract_risk_free_rate(clean_df)
 # Calculating monthly returns.
 monthly_returns = calculate_monthly_returns(clean_df)
+# Calculating Sharpe ratios
+sharpe_ratios = calculate_sharpe_ratio(monthly_returns, risk_free_rate)
+# Optimizing portfolio weights
+optimal_weights = optimize_portfolio(monthly_returns, risk_free_rate)
 
-#-------------------------------------------------------------------------------------------------------------------
+"""
+# Exporting the data as xlsx files:
+"""
 
 # Exporting the cleaned data to a xlsx file:
 clean_df.to_excel('Cleaned-Sharpe-ratio-picked-instruments-price-data.xlsx')
@@ -102,3 +171,10 @@ risk_free_rate.to_excel('Risk-free-rate-Sharpe-ratio-picked-instruments-data.xls
 
 # Exporting the monthly returns to a xlsx file:
 monthly_returns.to_excel('Monthly-returns-Sharpe-ratio-picked-instruments-data.xlsx')
+
+# Exporting Sharpe ratios to a xlsx file:
+sharpe_ratios.to_excel('Sharpe-ratio-results.xlsx')
+
+# Exporting optimal weights to a xlsx file:
+optimal_weights.to_excel('Optimal-portfolio-weights.xlsx')
+
