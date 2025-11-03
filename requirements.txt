@@ -6,4 +6,5 @@ matplotlib>=3.4.0
 pipe>=1.5.0
 seaborn>=0.11.0
 cvxopt>=1.2.7
-pypfopt>=1.5.0
+openpyxl>=3.1.4
+pyportfolioopt>=1.5.0
