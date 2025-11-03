@@ -57,13 +57,22 @@ def clean_data(df):
     # Converting df columns to numeric.
     df = df.apply(pd.to_numeric, errors='coerce')
 
+    # Converting the index to datetime.
+    df.index = pd.to_datetime(df.index)
+
+    # Sort by index (ascending = oldest first)
+    df = df.sort_index(ascending=True)
+
     return df
 
-# Extracting the risk-free rate (USGG10YR Index):
+# Extracting the risk-free rate (USGG10YR Index), already in percentage.
 def extract_risk_free_rate(df):
 
     # Extracting the risk-free rate (USGG10YR Index) from the data.
     risk_free_rate = df['USGG10YR Index'].copy()
+
+    # Removing the first row (NaN). 
+    risk_free_rate = risk_free_rate.iloc[1:]
 
     return risk_free_rate
 
@@ -109,6 +118,7 @@ def calculate_sharpe_ratio(returns, risk_free_rate, periods_per_year=12):
     
     return sharpe_ratios
 
+# Optimizing portfolio weights.
 def optimize_portfolio(returns, risk_free_rate, allow_shorting=False):
     """
     Optimize portfolio weights to maximize Sharpe ratio with optional shorting
@@ -159,11 +169,28 @@ clean_df = clean_data(df)
 risk_free_rate = extract_risk_free_rate(clean_df)
 # Calculating monthly returns.
 monthly_returns = calculate_monthly_returns(clean_df)
-# Calculating Sharpe ratios
+# Calculating Sharpe ratios.
 sharpe_ratios = calculate_sharpe_ratio(monthly_returns, risk_free_rate)
-# Optimizing portfolio weights
+# Optimizing portfolio weights.
 optimal_weights_no_shorting = optimize_portfolio(monthly_returns, risk_free_rate)
 optimal_weights_with_shorting = optimize_portfolio(monthly_returns, risk_free_rate, allow_shorting=True)
+
+# Calculate portfolio Sharpe ratios
+def portfolio_sharpe_ratio(weights, returns, risk_free_rate, periods_per_year=12):
+    """Calculate Sharpe ratio for a weighted portfolio"""
+    portfolio_returns = (returns * weights).sum(axis=1)
+    excess_returns = portfolio_returns - risk_free_rate
+    annualized_mean = excess_returns.mean() * periods_per_year
+    annualized_std = excess_returns.std() * np.sqrt(periods_per_year)
+    return annualized_mean / annualized_std
+
+# Calculate and print Sharpe ratios
+sharpe_no_shorting = portfolio_sharpe_ratio(optimal_weights_no_shorting, monthly_returns, risk_free_rate)
+sharpe_with_shorting = portfolio_sharpe_ratio(optimal_weights_with_shorting, monthly_returns, risk_free_rate)
+
+print(f"\nOptimized Portfolio Sharpe Ratios:")
+print(f"No shorting: {sharpe_no_shorting:.4f}")
+print(f"With shorting: {sharpe_with_shorting:.4f}\n")
 
 """
 # Exporting the data as xlsx files:
@@ -181,7 +208,7 @@ monthly_returns.to_excel('Monthly-returns-Sharpe-ratio-picked-instruments-data.x
 # Exporting Sharpe ratios to a xlsx file:
 sharpe_ratios.to_excel('Sharpe-ratio-results.xlsx')
 
-# Exporting optimal weights with no-shorting to a xlsx file:
+# Exporting optimal weights with no shorting to a xlsx file:
 optimal_weights_no_shorting.to_excel('Optimal-portfolio-weights(no_shorting).xlsx')
 
 # Exporting optimal weights with shorting to a xlsx file:
