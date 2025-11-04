@@ -201,70 +201,6 @@ def portfolio_sharpe_ratio(weights, returns, risk_free_rate, periods_per_year=12
  Visualization functions:
 """
 
-#Efficient frontier plotting function.
-def plot_efficient_frontier(returns, risk_free_rate, filename):
-    """Plot the efficient frontier with fallback to simple plot"""
-    print(f"\nAttempting to plot efficient frontier: {filename}")
-    
-    try:
-        # Clean data
-        returns = returns.replace([np.inf, -np.inf], np.nan)
-        returns = returns.dropna(axis=1, how='any')
-        
-        if len(returns.columns) < 2:
-            print("Insufficient assets after cleaning - skipping")
-            return
-
-        # Try full optimization plot
-        try:
-            mu = pfopt.expected_returns.mean_historical_return(returns)
-            S = pfopt.risk_models.sample_cov(returns)
-            ef = pfopt.EfficientFrontier(mu, S, solver='ECOS')
-            
-            fig, ax = plt.subplots(figsize=(12, 8))
-            ef_max_sharpe = ef.deepcopy()
-            rf_rate = risk_free_rate.mean()/100 if risk_free_rate.mean() > 1 else risk_free_rate.mean()
-            
-            ef_max_sharpe.max_sharpe(risk_free_rate=rf_rate)
-            ret_tangent, std_tangent, _ = ef_max_sharpe.portfolio_performance()
-            
-            ef.plot_efficient_frontier(ax=ax, show_assets=False, color='coolwarm')
-            ax.scatter(std_tangent, ret_tangent, marker="*", s=300, c="red", 
-                      label="Maximum Sharpe Ratio")
-            ax.set_title("Efficient Frontier", fontsize=16)
-            ax.set_xlabel("Volatility (Standard Deviation)", fontsize=12)
-            ax.set_ylabel("Expected Return", fontsize=12)
-            ax.legend(fontsize=10)
-            sns.despine()
-            
-            plt.savefig(f'Visualization Graphs/{filename}', dpi=300)
-            plt.close()
-            print("Successfully generated optimized efficient frontier plot")
-            
-        except Exception as opt_error:
-            print(f"Optimization failed, using simple plot: {str(opt_error)}")
-            plt.close()
-            
-            # Fallback simple plot
-            fig, ax = plt.subplots(figsize=(12, 8))
-            ax.scatter(returns.std(), returns.mean(), alpha=0.5)
-            ax.set_title("Simple Returns Plot (Fallback)", fontsize=16)
-            ax.set_xlabel("Volatility", fontsize=12)
-            ax.set_ylabel("Return", fontsize=12)
-            sns.despine()
-            
-            plt.savefig(f'Visualization Graphs/{filename}', dpi=300)
-            plt.close()
-            print("Generated fallback simple returns plot")
-            
-    except Exception as e:
-        print(f"Failed to generate any plot: {str(e)}")
-        plt.close()
-            
-    except Exception as e:
-        print(f"Error creating efficient frontier plot: {str(e)}")
-        plt.close()
-
 # Plotting the portfolio allocation as a pie chart.
 def plot_portfolio_allocation(weights, title, filename):
     """Create a pie chart of portfolio allocations"""
@@ -297,7 +233,7 @@ def plot_portfolio_allocation(weights, title, filename):
     plt.title(title, fontsize=16, pad=20)
     plt.axis('equal')
 
-    # Makeing labels more readable.
+    # Making labels more readable.
     for text in texts:
         text.set_fontsize(12)
     for autotext in autotexts:
@@ -349,10 +285,6 @@ print(f"With shorting: {sharpe_with_shorting:.4f}\n")
 # Generate allocation plots, also saving them to the Visualization Graphs directory.
 plot_portfolio_allocation(optimal_weights_no_shorting, 'Optimal Portfolio Allocation (No Shorting)', 'Optimal-portfolio-allocation-no-shorting.png')
 plot_portfolio_allocation(optimal_weights_with_shorting, 'Optimal Portfolio Allocation (With Shorting)', 'Optimal-portfolio-allocation-with-shorting.png')
-
-# Generate efficient frontier plots, also saving them to the Visualization Graphs directory.
-plot_efficient_frontier(monthly_returns, risk_free_rate, 'Efficient-frontier-no-shorting.png')
-plot_efficient_frontier(monthly_returns, risk_free_rate, 'Efficient-frontier-with-shorting.png')
 
 """
 # Exporting the data as xlsx files:
