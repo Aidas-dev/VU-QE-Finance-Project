@@ -249,6 +249,10 @@ def plot_portfolio_allocation(weights, title, filename):
     )
 
     # Save figure
+
+    # Creating the output directories if they don't exist
+    os.makedirs('Visualization Graphs', exist_ok=True)
+
     plt.tight_layout()
     plt.savefig(
         f'Visualization Graphs/{filename}', 
