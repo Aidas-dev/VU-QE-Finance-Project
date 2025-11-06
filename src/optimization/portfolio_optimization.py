@@ -29,4 +29,4 @@ def optimize_portfolio(returns, risk_free_rate, allow_shorting=False):
     weights = ef.max_sharpe()
 
     return pd.Series(weights, index=returns.columns)
-</fitten_content>
+

@@ -12,7 +12,7 @@ from visualization.portfolio_plots import plot_portfolio_allocation
 
 def load_config():
     """Load configuration from config.json"""
-    with open('config.json') as f:
+    with open('../config.json') as f:
         return json.load(f)
 
 def main():
@@ -69,6 +69,9 @@ def main():
     sharpe_ratios.to_excel(f"{config['output']['xlsx']}/Sharpe-ratio-results.xlsx")
     optimal_weights_no_shorting.to_excel(f"{config['output']['xlsx']}/Optimal-portfolio-weights(no_shorting).xlsx")
     optimal_weights_with_shorting.to_excel(f"{config['output']['xlsx']}/Optimal-portfolio-weights(with_shorting).xlsx")
+
+    #Join all xlsx files into one workbook
+
 
 if __name__ == '__main__':
     main()

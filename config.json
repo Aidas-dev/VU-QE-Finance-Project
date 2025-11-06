@@ -5,5 +5,9 @@
   "output": {
     "xlsx": "XLSX files",
     "plots": "Visualization Graphs"
+  },
+  "plotting": {
+    "style": "seaborn",
+    "figure_size": [8, 12]
   }
 }
