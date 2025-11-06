@@ -2,7 +2,7 @@ import cvxpy as cp
 import pypfopt as pfopt
 import pandas as pd
 
-def optimize_portfolio(returns, risk_free_rate, allow_shorting=False):
+def optimize_portfolio(returns, risk_free_rate, allow_shorting=False, leverage_constraint=None):
     """
     Optimize portfolio weights to maximize Sharpe ratio with optional shorting
 
@@ -14,19 +14,25 @@ def optimize_portfolio(returns, risk_free_rate, allow_shorting=False):
     Returns:
     Series: Optimal weights for each asset
     """
-    # Calculate excess returns
+    # Calculate excess returns, and monthly sharpe ratio
     excess_returns = returns.sub(risk_free_rate, axis=0)
+    # Calculate expected returns and the covariance matrix
+    mu = excess_returns.mean()
+    S = excess_returns.cov()
 
-    # Create EfficientFrontier object
-    ef = pfopt.EfficientFrontier(
-        excess_returns.mean(),
-        excess_returns.cov(),
-        weight_bounds=(-1 if allow_shorting else 0, 1)
-    )
-    # Shorting leverage constraint, no leverage
-    ef.add_constraint(lambda w: cp.sum(cp.abs(w)) <= 1.0)
-    # Maximize Sharpe ratio
+    # Initialize the EfficientFrontier object with dynamic weight bounds
+    weight_bounds = (-1, 1) if allow_shorting else (0, 1)
+    ef = pfopt.EfficientFrontier(mu, S, weight_bounds=weight_bounds)
+
+    # Get the raw optimized weights, remove small weights.
     weights = ef.max_sharpe()
+    weights = ef.clean_weights()
+
+
+    # Leverage constraint, no constraint by default.
+    if leverage_constraint is not None:
+        ef.add_constraint(lambda w: cp.sum(w) <= leverage_constraint, verbose=True)
+
 
     return pd.Series(weights, index=returns.columns)
 

@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from datetime import datetime
+import openpyxl
 
 def clean_data(df):
     """Clean and prepare financial instrument data"""
@@ -41,11 +42,23 @@ def clean_data(df):
     return df
 
 def extract_risk_free_rate(df):
-    """Extract risk-free rate from the data"""
-    # Extracting the risk-free rate (USGG10YR Index) from the data.
-    risk_free_rate = df['USGG10YR Index'].copy()
+    """Extract risk-free rate from the data and turn it to monthly returns"""
+    try:
+        # Try to extract the risk-free rate (USGG10YR Index) from the data
+        risk_free_rate1 = df['USGG10YR Index'].copy()
+        
+        # Removing the first row (NaN)
+        risk_free_rateYR = risk_free_rate1.iloc[1:]
+        
+        # Convert annual rate to monthly
+        risk_free_rate = (1 + risk_free_rateYR/100) ** (1/12) - 1
 
-    # Removing the first row (NaN).
-    risk_free_rate = risk_free_rate.iloc[1:]
-
-    return risk_free_rate
+        # Convert to percentage
+        risk_free_rate = risk_free_rate * 100
+        return risk_free_rate
+    except KeyError:
+        # If column doesn't exist, use default risk-free rate of 2%
+        print("Warning: USGG10YR Index not found - using default risk-free rate of 2%")
+        default_annual_rate = 0.02
+        risk_free_rate = (1 + default_annual_rate) ** (1/12) - 1
+        return pd.Series([risk_free_rate] * (len(df) - 1), index=df.index[1:])

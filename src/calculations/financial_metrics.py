@@ -4,12 +4,17 @@ import pandas as pd
 def calculate_monthly_returns(price_df):
     """Calculate monthly returns with robust data cleaning"""
     try:
+
+        #Remove any columns with Bond rates, tickers with YR and MN in them:
+        price_df = price_df.drop(columns=[col for col in price_df.columns if 'YR' in col or 'MN' in col or 'Bond' in col])
+
+
         # Calculate percentage change between months
         returns = price_df.pct_change()
         
         # Remove first row (NaN)
         returns = returns.iloc[1:]
-        
+
         # Convert returns to percentage
         returns = returns * 100
         
@@ -42,10 +47,47 @@ def calculate_sharpe_ratio(returns, risk_free_rate, periods_per_year=12):
 
     return sharpe_ratios
 
-def portfolio_sharpe_ratio(weights, returns, risk_free_rate, periods_per_year=12):
-    """Calculate Sharpe ratio for a weighted portfolio"""
+def portfolio_statistics(weights, returns, risk_free_rate, periods_per_year=12):
+    """
+    Calculate portfolio statistics including Sharpe ratio, annualized return,
+    total return, volatility and leverage
+    
+    Parameters:
+    weights (Series): Portfolio weights
+    returns (DataFrame): Asset returns
+    risk_free_rate (Series): Risk-free rate
+    periods_per_year (int): Number of periods per year
+    
+    Returns:
+    DataFrame: Portfolio statistics with metrics as index
+    """
+    # Calculate portfolio returns
     portfolio_returns = (returns * weights).sum(axis=1)
     excess_returns = portfolio_returns - risk_free_rate
-    annualized_mean = excess_returns.mean() * periods_per_year
-    annualized_std = excess_returns.std() * np.sqrt(periods_per_year)
-    return annualized_mean / annualized_std
+    
+    # Calculate statistics
+    annualized_return = portfolio_returns.mean() * periods_per_year
+    volatility = portfolio_returns.std() * np.sqrt(periods_per_year)
+    sharpe_ratio = excess_returns.mean() * periods_per_year / (excess_returns.std() * np.sqrt(periods_per_year))
+    leverage = np.sum(np.abs(weights))
+    
+    # Create DataFrame
+    stats = pd.DataFrame({
+        'Value': [
+            sharpe_ratio,
+            annualized_return,
+            volatility,
+            leverage
+        ]
+    }, index=[
+        'Sharpe Ratio',
+        'Annualized Return, %',
+        'Volatility, %',
+        'Leverage, times investment sum'
+    ])
+    
+    # Round all values to 2 decimal digits
+    stats['Value'] = stats['Value'].round(2)
+    
+    return stats
+
