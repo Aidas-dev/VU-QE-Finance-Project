@@ -1,0 +1,9 @@
+{
+  "input_data": {
+    "path": "input_data/Sharpe-ratio-picked-instruments-data.csv"
+  },
+  "output": {
+    "xlsx": "XLSX files",
+    "plots": "Visualization Graphs"
+  }
+}
