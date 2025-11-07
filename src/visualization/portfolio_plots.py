@@ -20,7 +20,7 @@ def plot_portfolio_allocation(weights, title, filename):
     plt.rcParams['axes.titleweight'] = 'bold'
     
     # Filter and sort weights
-    significant_weights = weights[abs(weights) > 0.02]
+    significant_weights = weights[abs(weights) > 0.01]
     other = weights[abs(weights) <= 0.1].sum()
     if abs(other) > 0:
         significant_weights['Other'] = other
