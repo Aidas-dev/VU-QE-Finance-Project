@@ -44,10 +44,6 @@ def main():
     optimal_weights_with_shorting = optimize_portfolio(
         monthly_returns, risk_free_rate, allow_shorting=True)
 
-    # Calculate expected returns and covariance matrix for efficient frontier
-    expected_returns = monthly_returns.mean()
-    cov_matrix = monthly_returns.cov()
-    
     # Portfolio performance
     stats_no_shorting = portfolio_statistics(
         optimal_weights_no_shorting, monthly_returns, risk_free_rate

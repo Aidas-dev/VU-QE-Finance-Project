@@ -73,4 +73,4 @@ def optimize_portfolio(returns, risk_free_rate, allow_shorting=False, leverage_c
     
     print(dict(zip(returns.columns, weights)))
     
-    return pd.Series(weights, index=returns.columns)
+    return pd.Series(weights, index=returns.columns), S
