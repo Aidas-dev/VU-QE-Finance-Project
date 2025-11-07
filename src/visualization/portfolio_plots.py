@@ -21,16 +21,13 @@ def plot_portfolio_allocation(weights, title, filename):
     
     # Filter and sort weights
     significant_weights = weights[abs(weights) > 0.01]
-    other = weights[abs(weights) <= 0.1].sum()
-    if abs(other) > 0:
-        significant_weights['Other'] = other
-    
+
     # Sort by absolute weight descending
     significant_weights = significant_weights.iloc[abs(significant_weights).argsort()[::-1]]
     labels = significant_weights.index
 
-    # Create figure with 4:3 aspect ratio
-    fig = plt.figure(figsize=(12, 9), dpi=500)
+    # Create figure with 16:10 aspect ratio
+    fig = plt.figure(figsize=(16, 10), dpi=500)
     ax1 = fig.add_subplot(111)  # Main plot area
 
     # Create pie chart without labels or percentages
@@ -52,10 +49,10 @@ def plot_portfolio_allocation(weights, title, filename):
         legend_labels,
         loc='center left',
         bbox_to_anchor=(1, 0.5),
-        fontsize=9,
+        fontsize=14,
         frameon=True,
         fancybox=True,
-        framealpha=0.8,
+        framealpha=1,
         facecolor='white',
         edgecolor='#dddddd'
     )
