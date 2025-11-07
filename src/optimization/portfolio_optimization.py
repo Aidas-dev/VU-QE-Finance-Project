@@ -49,7 +49,7 @@ def optimize_portfolio(returns, risk_free_rate, allow_shorting=False, leverage_c
         port_vol = np.sqrt(np.dot(w, np.dot(S, w)))
         sharpe = (port_return - risk_free) / port_vol
         return -sharpe
-    
+
     # Optimize
     result = minimize(
         negative_sharpe,

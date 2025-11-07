@@ -59,7 +59,8 @@ def plot_portfolio_allocation(weights, title, filename):
     legend.get_frame().set_boxstyle("round,pad=0.3,rounding_size=0.2")
 
     # Main title and layout
-    plt.title(title, fontsize=24, pad=20)
+    plt.title(title, fontsize=24, pad=25)
+    plt.subplots_adjust(left=0.05, right=0.65, top=0.9)  # Shift plot left and ensure title visibility
     plt.tight_layout()
 
     # Save figure
