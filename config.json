@@ -1,0 +1,13 @@
+{
+  "input_data": {
+    "path": "input_data/Sharpe-ratio-picked-instruments-more-data.xlsx"
+  },
+  "output": {
+    "xlsx": "XLSX files",
+    "plots": "Visualization Graphs"
+  },
+  "plotting": {
+    "style": "seaborn",
+    "figure_size": [24, 12]
+  }
+}
