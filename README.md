@@ -1,6 +1,6 @@
 
 # VU-QE-Finance-Project
-Useful financial python scripts and tools.
+Financial script for calculating Sharpe value from monthly Bloomberg price data.
 
 ## The given task:
 
