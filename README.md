@@ -1,6 +1,6 @@
 
 # VU-QE-Finance-Project
-Useful financial python and/or R scripts and tools.
+Useful financial python scripts and tools.
 
 ## The given task:
 
@@ -10,9 +10,9 @@ Create a portfolio of stocks or any financial instruments that can be found on *
 
 ### Conditions:
 
-- The instrument return and all other parameters (variance, Beta and so on) is measured from 2015-10-01 to 2025-10-01. 
+- The instrument return and all other parameters (variance, Beta and so on) is measured from 2015-11-30 to 2025-09-30. 
 
-- We have to examine the past and make the best choice of instruments that should have been bought in 2015-10-01 and held to 2025-10-01, the easiest way to attempt do this task (as I understand).
+- We have to examine the past and make the best choice of instruments that should have been bought in 2015-11-30 and held to 2015-09-30, the easiest way to attempt do this task (as I understand).
 
 - We have to calculate the monthly returns of our instruments over the ten years, from this we then calculate the other parameters.
 
@@ -68,5 +68,14 @@ Edit `config.json` to modify:
 
 ## Outputs
 The script generates:
-- Excel files in `XLSX files/` directory
+- Excel workbook with the portfolio allocation and metrics in `XLSX files/` directory
 - Portfolio allocation plots in `Visualization Graphs/` directory
+
+## Considerations
+- The script maximizes the Sharpe Ratio, but it does not take into account any other risk-factor such as market volatility, inflation, or other market factors.
+- The script assumes that the input data in the template format of the Bloomberg Terminal HP Data, like in the `input_data/` directory. <br>
+  It removes any columns with missing data, the price data dates must match.
+- The script does not take into account any transaction costs or slippage.
+
+## Disclaimer
+# PAST RETURNS DO NOT INDICATE THE FUTURE RETURNS!
