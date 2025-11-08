@@ -10,7 +10,7 @@ Create a portfolio of stocks or any financial instruments that can be found on *
 
 ### Conditions:
 
-- The instrument return and all other parameters (variance, Beta and so on) is measured from 2015-11-30 to 2025-09-30. 
+- The instrument return and all other parameters (variance, portfolio returns and so on) is measured from 2015-11-30 to 2025-09-30. 
 
 - We have to examine the past and make the best choice of instruments that should have been bought in 2015-11-30 and held to 2015-09-30, the easiest way to attempt do this task (as I understand).
 
